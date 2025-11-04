@@ -2,11 +2,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import os
+import logging
 
 from app.core.config import settings
 from app.core.database import engine, Base
 from app.core.rate_limiter import RateLimitMiddleware
 from app.api.routes import health, resumes, errors, job_matching, quality_analysis, advanced_features
+
+logger = logging.getLogger(__name__)
 
 Base.metadata.create_all(bind=engine)
 
@@ -15,6 +18,21 @@ app = FastAPI(
     description="Complete resume analysis platform with AI-powered parsing, job matching, quality analysis, and advanced features",
     version="2.2.0"
 )
+
+@app.on_event("startup")
+async def startup_event():
+    logger.info("=" * 70)
+    logger.info("🚀 AI-Powered Resume Parser & Job Matcher v2.2.0")
+    logger.info("=" * 70)
+    logger.info("📊 Database: Connected")
+    logger.info("🔌 API: Ready")
+    logger.info("")
+    logger.info("ℹ️  ML Models will download on first use:")
+    logger.info("   • Flair NER (~500MB) - downloads when first resume is uploaded")
+    logger.info("   • This is normal and only happens once")
+    logger.info("")
+    logger.info("📚 API Documentation: http://localhost:8000/docs")
+    logger.info("=" * 70)
 
 app.add_middleware(
     CORSMiddleware,

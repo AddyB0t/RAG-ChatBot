@@ -305,7 +305,17 @@ async def compare_candidates(
     Direct comparison between two candidates
 
     Provides side-by-side comparison of scores and strengths
+    Works with both resumes (with or without job matches)
     """
+    resume1 = db.query(Resume).filter(Resume.id == uuid.UUID(candidate1_id)).first()
+    resume2 = db.query(Resume).filter(Resume.id == uuid.UUID(candidate2_id)).first()
+
+    if not resume1 or not resume2:
+        raise HTTPException(
+            status_code=404,
+            detail="One or both candidates not found"
+        )
+
     job_match1 = db.query(ResumeJobMatch).filter(
         ResumeJobMatch.resume_id == uuid.UUID(candidate1_id)
     ).first()
@@ -314,24 +324,20 @@ async def compare_candidates(
         ResumeJobMatch.resume_id == uuid.UUID(candidate2_id)
     ).first()
 
-    if not job_match1 or not job_match2:
-        raise HTTPException(
-            status_code=404,
-            detail="One or both candidates not found or not matched to a job"
-        )
-
     ranker = get_candidate_ranker()
 
     candidate1_data = {
         'resume_id': candidate1_id,
-        'final_score': job_match1.overall_score,
-        'category_scores': job_match1.category_scores or {}
+        'final_score': job_match1.overall_score if job_match1 else 0.0,
+        'category_scores': job_match1.category_scores if job_match1 else {},
+        'structured_data': resume1.structured_data or {}
     }
 
     candidate2_data = {
         'resume_id': candidate2_id,
-        'final_score': job_match2.overall_score,
-        'category_scores': job_match2.category_scores or {}
+        'final_score': job_match2.overall_score if job_match2 else 0.0,
+        'category_scores': job_match2.category_scores if job_match2 else {},
+        'structured_data': resume2.structured_data or {}
     }
 
     comparison = ranker.compare_candidates(candidate1_data, candidate2_data)

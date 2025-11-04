@@ -1,7 +1,7 @@
 # Testing Guide
 ## AI-Powered Resume Parser & Job Matcher
 
-This document provides comprehensive testing instructions for the hackathon project.
+This document provides comprehensive testing instructions for the application.
 
 ---
 
