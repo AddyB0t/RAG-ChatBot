@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    container_name: resume_parser_db
+    environment:
+      POSTGRES_DB: hackathon
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=en_US.UTF-8 --lc-ctype=en_US.UTF-8"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d hackathon"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: resume_parser_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: hackathon
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      OPENROUTER_API_KEY: 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
+      OPENROUTER_MODEL: openai/gpt-4o
+      OPENROUTER_BASE_URL: https://openrouter.ai/api/v1
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+      API_RELOAD: False
+      API_WORKERS: 4
+      AUTH_PASSWORD: QWERTY
+      MAX_FILE_SIZE_MB: 10
+      ALLOWED_EXTENSIONS: pdf,docx,doc,txt
+      UPLOAD_DIR: /app/uploads
+      LOG_LEVEL: INFO
+      LOG_FILE: /app/logs/app.log
+      TESSERACT_CMD: /usr/bin/tesseract
+      FLAIR_MODEL_NAME: flair/ner-english-large
+      FLAIR_CACHE_DIR: /app/models/flair_cache
+      EMBEDDING_MODEL: sentence-transformers/all-MiniLM-L6-v2
+      EMBEDDING_DEVICE: auto
+      RATE_LIMIT_PER_MINUTE: 100
+      CHUNK_SIZE: 500
+      CHUNK_OVERLAP: 200
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+      - model_cache:/app/models/flair_cache
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health|| exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  model_cache:
+    driver: local

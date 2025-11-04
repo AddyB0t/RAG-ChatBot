@@ -31,7 +31,6 @@ class OCRProcessor:
     def preprocess_for_ocr(self, image: Image.Image) -> Image.Image:
         """
         Advanced image preprocessing for better OCR results
-        Based on Immuneshield preprocessing techniques
 
         Steps:
         1. Convert to OpenCV format

@@ -14,6 +14,11 @@ class FlairLoader:
     def get_model(self):
         if self._tagger is None:
             try:
+                logger.info("=" * 60)
+                logger.info("🔄 Starting Flair NER model initialization...")
+                logger.info("📦 Model: flair/ner-english-large (~500MB)")
+                logger.info("=" * 60)
+
                 import torch
                 original_load = torch.load
 
@@ -24,14 +29,24 @@ class FlairLoader:
 
                 torch.load = patched_load
 
+                logger.info("📥 Downloading/Loading Flair model...")
+                logger.info("⏳ First download takes 5-10 minutes...")
+                logger.info("💾 Model will be cached for future use")
+
                 from flair.models import SequenceTagger
                 self._tagger = SequenceTagger.load("flair/ner-english-large")
-                logger.info("Flair NER model loaded successfully")
+
+                logger.info("=" * 60)
+                logger.info("✅ Flair NER model loaded successfully!")
+                logger.info("🚀 System ready for resume parsing")
+                logger.info("=" * 60)
 
                 torch.load = original_load
 
             except Exception as e:
-                logger.error(f"Failed to load Flair model: {e}")
+                logger.error("=" * 60)
+                logger.error(f"❌ Failed to load Flair model: {e}")
+                logger.error("=" * 60)
                 self._tagger = None
 
         return self._tagger

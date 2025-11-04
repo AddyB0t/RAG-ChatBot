@@ -450,12 +450,23 @@ class CandidateRanker:
         Returns:
             Detailed comparison
         """
+        score1 = candidate1.get('final_score', 0)
+        score2 = candidate2.get('final_score', 0)
+
+        structured1 = candidate1.get('structured_data', {})
+        structured2 = candidate2.get('structured_data', {})
+
+        if score1 == 0 and score2 == 0 and (structured1 or structured2):
+            score1 = self._calculate_resume_quality_score(structured1)
+            score2 = self._calculate_resume_quality_score(structured2)
+
         comparison = {
-            'candidate1_score': candidate1.get('final_score', 0),
-            'candidate2_score': candidate2.get('final_score', 0),
-            'score_difference': abs(candidate1.get('final_score', 0) - candidate2.get('final_score', 0)),
-            'winner': 'candidate1' if candidate1.get('final_score', 0) > candidate2.get('final_score', 0) else 'candidate2',
-            'category_comparison': {}
+            'candidate1_score': score1,
+            'candidate2_score': score2,
+            'score_difference': abs(score1 - score2),
+            'winner': 'candidate1' if score1 > score2 else ('candidate2' if score2 > score1 else 'tie'),
+            'category_comparison': {},
+            'resume_comparison': self._compare_resume_structures(structured1, structured2)
         }
 
         scores1 = candidate1.get('category_scores', {})
@@ -471,6 +482,60 @@ class CandidateRanker:
                 }
 
         return comparison
+
+    def _calculate_resume_quality_score(self, structured_data: Dict[str, Any]) -> float:
+        """Calculate a quality score based on resume completeness and content"""
+        if not structured_data:
+            return 0.0
+
+        score = 0.0
+
+        personal_info = structured_data.get('personal_information', {})
+        if personal_info.get('email'):
+            score += 5
+        if personal_info.get('phone'):
+            score += 5
+        if personal_info.get('location'):
+            score += 5
+
+        skills = structured_data.get('skills', [])
+        score += min(len(skills) * 2, 20)
+
+        experience = structured_data.get('work_experience', [])
+        score += min(len(experience) * 10, 30)
+
+        education = structured_data.get('education', [])
+        score += min(len(education) * 8, 20)
+
+        certifications = structured_data.get('certifications', [])
+        score += min(len(certifications) * 3, 15)
+
+        return min(score, 100.0)
+
+    def _compare_resume_structures(self, structured1: Dict[str, Any], structured2: Dict[str, Any]) -> Dict[str, Any]:
+        """Compare resume structures"""
+        return {
+            'skills': {
+                'candidate1_count': len(structured1.get('skills', [])),
+                'candidate2_count': len(structured2.get('skills', [])),
+                'leader': 'candidate1' if len(structured1.get('skills', [])) > len(structured2.get('skills', [])) else 'candidate2'
+            },
+            'experience': {
+                'candidate1_count': len(structured1.get('work_experience', [])),
+                'candidate2_count': len(structured2.get('work_experience', [])),
+                'leader': 'candidate1' if len(structured1.get('work_experience', [])) > len(structured2.get('work_experience', [])) else 'candidate2'
+            },
+            'education': {
+                'candidate1_count': len(structured1.get('education', [])),
+                'candidate2_count': len(structured2.get('education', [])),
+                'leader': 'candidate1' if len(structured1.get('education', [])) > len(structured2.get('education', [])) else 'candidate2'
+            },
+            'certifications': {
+                'candidate1_count': len(structured1.get('certifications', [])),
+                'candidate2_count': len(structured2.get('certifications', [])),
+                'leader': 'candidate1' if len(structured1.get('certifications', [])) > len(structured2.get('certifications', [])) else 'candidate2'
+            }
+        }
 
 _candidate_ranker_instance = None
 

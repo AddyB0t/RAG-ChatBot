@@ -1,501 +1,447 @@
 # AI-Powered Resume Parser & Job Matcher
 
-A comprehensive AI-powered resume parsing and job matching platform built with FastAPI, PostgreSQL, and OpenRouter GPT-4. Features intelligent resume parsing, semantic job matching, and quality analysis.
+**Version**: 2.2.0
+**Status**: Production Ready
 
-## Table of Contents
-- [Features](#features)
-- [Quick Start](#quick-start)
-- [API Documentation](#api-documentation)
-- [Architecture](#architecture)
-- [Performance](#performance)
-- [Development](#development)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [License](#license)
+---
 
-## Features
+## Overview
 
-### Core Features
-- **Multi-Format Resume Parsing**: PDF, DOCX, DOC, TXT support with background processing
-- **AI-Powered Extraction**: 6 parallel extraction streams using OpenRouter GPT-4
-  - Contact Information (name, email, phone, address, social links)
-  - Professional Summary (career level, industry classification)
-  - Work Experience (titles, companies, dates, achievements, technologies)
-  - Education (degrees, institutions, GPA, honors)
-  - Skills (technical, soft skills, languages with categorization)
-  - Certifications (names, issuers, dates, credentials)
-- **Duplicate Detection**: File hash-based duplicate prevention
-- **Background Processing**: Non-blocking uploads with real-time status tracking
-- **Error Tracking**: Comprehensive error logging and resolution system
+A comprehensive AI-powered system for parsing resumes, extracting structured information, and matching candidates to job requirements. Features advanced capabilities including bias detection, resume anonymization, competitive analysis, and intelligent candidate ranking.
+
+## Key Features
+
+### Core Functionality
+
+- **Resume Parsing**: Extract structured data from PDF, DOCX, DOC, TXT formats
+- **OCR Support**: Process scanned documents using Tesseract OCR
+- **Named Entity Recognition**: Extract entities using Flair NER models
+- **Job Matching**: Intelligent matching algorithm with multi-criteria scoring
 
 ### Advanced Features
-- **Resume-Job Matching**: AI-powered semantic matching with relevancy scoring
-  - Overall match score (0-100) with confidence intervals
-  - Multi-dimensional scoring (skills, experience, education, location)
-  - Gap analysis with critical missing requirements
-  - Improvement suggestions and recommendations
 
-- **Quality Analysis**: AI-driven resume quality assessment
-  - Quality score (0-100) based on formatting and impact
-  - Completeness score for ATS compatibility
-  - Career level detection (Entry/Mid/Senior/Executive)
-  - Salary estimation by location
-  - Detailed improvement plan with priority actions
+- **Bias Detection**: Identify and flag potential biases across 7 categories
+- **Resume Anonymization**: Remove PII with 10 customizable options
+- **Competitive Analysis**: Benchmark candidates against industry standards
+- **Candidate Ranking**: Multi-criteria ranking with S/A/B/C/D tiers
+- **Quality Analysis**: Comprehensive resume quality assessment
 
-### Technical Features
-- **Fast Processing**: 10-15 seconds with parallel AI extraction (3-4x faster)
-- **RESTful API**: 16 endpoints with OpenAPI 3.x documentation
-- **PostgreSQL + JSONB**: Flexible structured data storage
-- **JWT-style Authentication**: Secure API access
-- **Docker Support**: Full containerization with docker-compose
+### API Features
+
+- RESTful API with FastAPI
+- Interactive documentation (Swagger/ReDoc)
+- Rate limiting and authentication
+- Error tracking and logging
+- Health monitoring
+
+---
 
 ## Quick Start
 
-### Option 1: Automated Setup (Recommended)
+### Prerequisites
+
+- Python 3.11+
+- PostgreSQL 14+
+- Tesseract OCR
+- 4GB+ RAM
+- 10GB+ disk space
+
+### Installation
+
+#### 1. Clone Repository
 
 ```bash
-# Clone repository
 git clone <repository-url>
 cd RAG-ChatBot
-
-# Run setup script
-chmod +x setup.sh
-./setup.sh
-
-# Edit .env and add your OpenRouter API key
-nano .env
-
-# Start the server
-source /mnt/data/miniconda3/bin/activate Hackathon  # or: source venv/bin/activate
-uvicorn app.main:app --reload
 ```
 
-### Option 2: Manual Setup
-
-#### 1. Prerequisites
-- Python 3.11+
-- PostgreSQL 12+
-- OpenRouter API key
-
-#### 2. Install Dependencies
+#### 2. Set Up Python Environment
 
 ```bash
 # Create virtual environment
-python3 -m venv venv
-source venv/bin/activate
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# or
+venv\Scripts\activate  # Windows
 
-# Install packages
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-#### 3. Database Setup
+#### 3. Install System Dependencies
+
+**Ubuntu/Debian:**
 
 ```bash
-# Start PostgreSQL
-sudo systemctl start postgresql
-
-# Create database
-sudo -u postgres psql -c "CREATE DATABASE hackathon;"
-sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"
+sudo apt-get update
+sudo apt-get install -y tesseract-ocr tesseract-ocr-eng poppler-utils
 ```
 
-#### 4. Configuration
+**macOS:**
 
-Create `.env` file:
+```bash
+brew install tesseract poppler
+```
+
+**Windows:**
+
+- Download Tesseract from: https://github.com/UB-Mannheim/tesseract/wiki
+- Add to PATH
+
+#### 4. Set Up PostgreSQL
+
+```bash
+# Create database
+sudo -u postgres psql -c "CREATE DATABASE resume_db;"
+
+# Create user (optional)
+sudo -u postgres psql -c "CREATE USER resume_user WITH PASSWORD 'your_password';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE resume_db TO resume_user;"
+```
+
+#### 5. Configure Environment
+
+```bash
+# Copy environment template
+cp .env.example .env
+
+# Edit .env with your settings
+nano .env
+```
+
+Required variables:
 
 ```env
-# OpenRouter AI
-OPENROUTER_API_KEY=your-api-key-here
-OPENROUTER_MODEL=openai/gpt-4o
-
-# Database
+OPENROUTER_API_KEY=your_api_key_here
+DB_NAME=resume_db
 DB_USER=postgres
-DB_PASSWORD=postgres
+DB_PASSWORD=your_password
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=hackathon
-
-# API Settings
-API_HOST=0.0.0.0
-API_PORT=8000
-AUTH_PASSWORD=QWERTY
-
-# File Upload
-MAX_FILE_SIZE_MB=5
-ALLOWED_EXTENSIONS=pdf,docx,doc,txt
 ```
 
-#### 5. Initialize Database
+#### 6. Start Application
 
 ```bash
-python3 -c "from app.core.database import engine, Base; from app.models.database import *; Base.metadata.create_all(bind=engine)"
+# Using the startup script
+./start_server.sh
+
+# Or manually
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-#### 6. Start Server
+Access the application:
+
+- **API Docs**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+- **Health**: http://localhost:8000/health
+
+---
+
+## Docker Deployment
+
+### Quick Start with Docker
+
+**Two simple commands to run the entire application:**
 
 ```bash
-uvicorn app.main:app --reload
+# Build the application
+docker-compose build app
+
+# Start all services (database + application)
+docker-compose up --build
 ```
 
-Access API documentation at: http://localhost:8000/docs
+That's it! The application will be available at http://localhost:8000
+
+### Alternative: Run in Background
+
+```bash
+# Build the application
+docker-compose build app
+
+# Start in detached mode
+docker-compose up -d --build
+
+# View logs
+docker-compose logs -f app
+
+# Check status
+docker-compose ps
+
+# Stop services
+docker-compose down
+```
+
+### Docker Commands Reference
+
+```bash
+# Build only the app service
+docker-compose build app
+
+# Start services (rebuild if needed)
+docker-compose up --build
+
+# Start in background
+docker-compose up -d --build
+
+# View logs
+docker-compose logs -f app
+
+# Stop services
+docker-compose down
+
+# Restart services
+docker-compose restart app
+
+# Access container shell
+docker-compose exec app bash
+
+**Access Points:**
+
+- API: http://localhost:8000
+- Database: localhost:5433
+
+See [DOCKER_GUIDE.md](DOCKER_GUIDE.md) for detailed documentation.
+
+---
 
 ## API Documentation
 
-### Interactive Documentation
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-
 ### Authentication
 
-All endpoints (except `/health`) require Bearer token authentication:
+All endpoints require Bearer token authentication:
 
 ```bash
-Authorization: Bearer QWERTY
+curl -H "Authorization: Bearer YOUR_PASSWORD" \
+  http://localhost:8000/api/v1/endpoint
 ```
 
-Default password is `QWERTY` (configurable in `.env`)
+### Core Endpoints
 
-### API Usage Examples
+#### Upload Resume
 
-#### 1. Upload Resume
 ```bash
-curl -X POST "http://localhost:8000/api/v1/resumes/upload" \
+POST /api/v1/resumes/upload
+Content-Type: multipart/form-data
+
+# Example
+curl -X POST \
   -H "Authorization: Bearer QWERTY" \
-  -F "file=@resume.pdf"
+  -F "file=@resume.pdf" \
+  http://localhost:8000/api/v1/resumes/upload
 ```
 
-Response:
-```json
+#### Match Resume to Job
+
+```bash
+POST /api/v1/job-matching/match/{resume_id}
+Content-Type: application/json
+
 {
-  "id": "uuid",
-  "file_name": "resume.pdf",
-  "status": "processing",
-  "message": "Resume uploaded successfully"
+  "job_title": "Software Engineer",
+  "job_description": "Looking for a Python developer...",
+  "required_skills": ["Python", "FastAPI", "PostgreSQL"]
 }
 ```
 
-#### 2. Check Processing Status
+#### Quality Analysis
+
 ```bash
-curl "http://localhost:8000/api/v1/resumes/{resume_id}/status" \
-  -H "Authorization: Bearer QWERTY"
+POST /api/v1/quality/analyze/{resume_id}?target_role=Software%20Engineer
 ```
 
-#### 3. Get Parsed Resume
+### Advanced Endpoints
+
+#### Bias Detection
+
 ```bash
-curl "http://localhost:8000/api/v1/resumes/{resume_id}" \
-  -H "Authorization: Bearer QWERTY"
+POST /api/v1/advanced/bias-detection/{resume_id}
 ```
 
-#### 4. Match Resume to Job
+#### Resume Anonymization
+
 ```bash
-curl -X POST "http://localhost:8000/api/v1/jobs/match" \
-  -H "Authorization: Bearer QWERTY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "resume_id": "{resume_id}",
-    "job_title": "Senior Software Engineer",
-    "job_description": "We are seeking a skilled engineer...",
-    "company_name": "Tech Corp"
-  }'
+POST /api/v1/advanced/anonymize
+{
+  "resume_data": {...},
+  "options": {
+    "remove_name": true,
+    "remove_contact": true,
+    "remove_address": true
+  }
+}
 ```
 
-#### 5. Analyze Resume Quality
+#### Candidate Ranking
+
 ```bash
-curl -X POST "http://localhost:8000/api/v1/quality/analyze/{resume_id}" \
-  -H "Authorization: Bearer QWERTY"
+POST /api/v1/advanced/rank-candidates
+{
+  "candidates": [...],
+  "job_requirements": {...}
+}
 ```
 
-### Complete API Endpoints (16 Total)
+#### Candidate Comparison
 
-#### Health & Info (2 endpoints)
-- `GET /` - API information and version
-- `GET /api/v1/health` - Health check with database status
+```bash
+POST /api/v1/advanced/candidate-comparison?candidate1_id=xxx&candidate2_id=yyy
+```
 
-#### Resume Management (7 endpoints)
-- `POST /api/v1/resumes/upload` - Upload and parse resume
-- `GET /api/v1/resumes/` - List all resumes
-- `GET /api/v1/resumes/{id}` - Get parsed resume data
-- `GET /api/v1/resumes/{id}/status` - Check processing status
-- `PUT /api/v1/resumes/{id}` - Update resume data
-- `DELETE /api/v1/resumes/{id}` - Delete resume
-- `GET /api/v1/errors/resume/{id}` - Get error logs for resume
-
-#### Job Matching (4 endpoints)
-- `POST /api/v1/jobs/match` - Match resume to job description
-- `GET /api/v1/jobs/matches/{match_id}` - Get detailed match results
-- `GET /api/v1/jobs/resumes/{resume_id}/matches` - List all matches for resume
-- `DELETE /api/v1/jobs/matches/{match_id}` - Delete job match
-
-#### Quality Analysis (3 endpoints)
-- `POST /api/v1/quality/analyze/{resume_id}` - Run quality analysis
-- `GET /api/v1/quality/{resume_id}` - Get quality analysis results
-- `DELETE /api/v1/quality/{resume_id}` - Delete quality analysis
+---
 
 ## Architecture
 
-### Project Structure
+```
+┌─────────────────────────────────────────────┐
+│           FastAPI Application               │
+├─────────────────────────────────────────────┤
+│  API Routes  │  Services   │  ML Models     │
+│  - Resumes   │  - Parser   │  - Flair NER   │
+│  - Matching  │  - Matcher  │  - OpenRouter  │
+│  - Quality   │  - Quality  │                │
+│  - Advanced  │  - Bias     │                │
+│              │  - Ranker   │                │
+├─────────────────────────────────────────────┤
+│         PostgreSQL Database                 │
+│  - Resumes   - Job Matches   - Error Logs  │
+└─────────────────────────────────────────────┘
+```
+
+### Technology Stack
+
+**Backend:**
+
+- FastAPI 0.104.1
+- Python 3.11
+- Pydantic 2.12.1
+- Uvicorn
+
+**Database:**
+
+- PostgreSQL 14+
+- SQLAlchemy 2.0.23
+- Psycopg2 2.9.9
+
+**ML/AI:**
+
+- Flair 0.13.1 (NER)
+- OpenRouter API (LLM)
+- Torch 2.1.1
+
+**Document Processing:**
+
+- PyPDF2 3.0.1
+- python-docx 1.1.0
+- Tesseract OCR
+- Poppler
+
+---
+
+## Project Structure
 
 ```
 RAG-ChatBot/
 ├── app/
-│   ├── main.py                          # FastAPI application (v2.1.0)
-│   ├── core/                            # Core configuration
-│   │   ├── config.py                    # Pydantic settings
-│   │   ├── database.py                  # SQLAlchemy setup
-│   │   └── security.py                  # Bearer token auth
-│   ├── api/routes/                      # API endpoints
-│   │   ├── health.py                    # Health checks
-│   │   ├── resumes.py                   # Resume CRUD + upload
-│   │   ├── job_matching.py              # Job matching endpoints
-│   │   ├── quality_analysis.py          # Quality analysis
-│   │   └── errors.py                    # Error logging
-│   ├── models/                          # Database models
-│   │   └── database.py                  # SQLAlchemy ORM models
-│   ├── schemas/                         # Pydantic schemas
-│   │   ├── resume.py                    # Resume schemas
-│   │   └── job_match.py                 # Job match schemas
-│   ├── services/                        # Business logic
-│   │   ├── document_loader.py           # PDF/DOCX/TXT loaders
-│   │   ├── resume_parser/               # Resume parsing
-│   │   │   ├── parser_manager.py        # Orchestrator (parallel)
-│   │   │   ├── name_extractor.py        # Flair NER
-│   │   │   ├── contact_extractor.py     # Regex + AI
-│   │   │   ├── experience_extractor.py  # AI extraction
-│   │   │   ├── education_extractor.py   # AI extraction
-│   │   │   ├── skills_extractor.py      # AI extraction
-│   │   │   └── certifications_extractor.py  # AI extraction
-│   │   ├── job_matcher/                 # Job matching
-│   │   │   ├── matcher_manager.py       # Orchestrator
-│   │   │   ├── job_parser.py            # Parse job descriptions
-│   │   │   ├── skill_matcher.py         # Fuzzy skill matching
-│   │   │   ├── experience_matcher.py    # Experience analysis
-│   │   │   └── match_scorer.py          # Weighted scoring
-│   │   └── quality_analyzer/            # Quality analysis
-│   │       └── resume_quality_analyzer.py  # AI quality scoring
-│   └── utils/
-│       └── openrouter_client.py         # Direct API client
-├── uploads/                              # Uploaded resume files
-├── logs/                                 # Application logs
-├── tests/                                # Test suite
-├── docker/                               # Docker configs
-│   ├── Dockerfile
-│   └── docker-compose.yml
-├── .env                                  # Environment variables
-├── requirements.txt                      # Python dependencies
-├── setup.sh                              # Automated setup script
-├── README.md                             # This file
-├── PROJECT_SUMMARY.md                    # Complete documentation
-└── REQUIREMENTS_CHECKLIST.md             # Hackathon compliance
-
-Database Tables:
-├── resumes                               # Main resume data
-├── resume_job_matches                    # Job matching results
-├── ai_analysis                           # Quality analysis
-└── resume_parser_error_logs              # Error tracking
+│   ├── api/routes/            # API endpoints
+│   ├── core/                  # Core configuration
+│   ├── models/                # Database models
+│   ├── services/              # Business logic
+│   └── main.py                # Application entry
+├── tests/                     # Test suite
+├── uploads/                   # Resume storage
+├── logs/                      # Application logs
+├── models/                    # ML model cache
+├── docker-compose.yml         # Docker setup
+├── Dockerfile                 # Docker image
+├── requirements.txt           # Dependencies
+└── README.md                  # This file
 ```
 
-### Data Flow
+---
 
-1. **Upload**: Client uploads resume → FastAPI endpoint
-2. **Background Processing**: Resume parsing starts in background
-   - 6 parallel AI extraction calls (name, contact, experience, education, skills, certs)
-   - ThreadPoolExecutor + asyncio for concurrency
-   - 10-15 second total processing time
-3. **Storage**: Structured data saved to PostgreSQL (JSONB column)
-4. **Job Matching**: Optional AI-powered job description comparison
-5. **Quality Analysis**: Optional resume quality and improvement suggestions
+## Configuration
 
-### Technology Stack
+### Environment Variables
 
-- **Backend**: FastAPI (Python 3.11) - Modern async web framework
-- **Database**: PostgreSQL 12+ with JSONB - Flexible structured storage
-- **AI/ML**: OpenRouter API (GPT-4o) - Direct API integration
-- **NLP**: Flair NER - Name entity recognition
-- **Document Processing**: PyPDF2, python-docx - Multi-format support
-- **Async**: asyncio + ThreadPoolExecutor - Parallel processing
-- **ORM**: SQLAlchemy - Database abstraction
-- **Validation**: Pydantic - Data validation and settings
-- **API Docs**: OpenAPI 3.x - Auto-generated Swagger UI
+**Required:**
+
+- `OPENROUTER_API_KEY` - OpenRouter API key for LLM access
+
+**Database:**
+
+- `DB_HOST` - Database host (default: localhost)
+- `DB_PORT` - Database port (default: 5432)
+- `DB_NAME` - Database name
+- `DB_USER` - Database user
+- `DB_PASSWORD` - Database password
+
+**API:**
+
+- `API_HOST` - API bind host (default: 0.0.0.0)
+- `API_PORT` - API port (default: 8000)
+- `API_WORKERS` - Number of workers (default: 4)
+- `AUTH_PASSWORD` - Bearer token password
+
+---
+
+## Testing
+
+```bash
+# Run all tests
+pytest tests/ -v
+
+# With coverage
+pytest tests/ --cov=app --cov-report=html
+```
+
+---
 
 ## Performance
 
 ### Benchmarks
-- **Resume Upload**: < 1 second (instant response)
-- **Resume Processing**: 10-15 seconds (parallel extraction)
-- **Job Matching**: 5-10 seconds (AI analysis)
-- **Quality Analysis**: 8-12 seconds (AI scoring)
-- **Concurrent Uploads**: Supported via background tasks
 
-### Optimizations
-- Parallel AI extraction (6 concurrent calls)
-- Background processing (non-blocking uploads)
-- Singleton pattern for service managers
-- Lazy loading for Flair NER model
-- ThreadPoolExecutor for CPU-bound tasks
-- Database connection pooling
-- File hash-based duplicate detection
-
-## Development
-
-### Running Locally
-
-```bash
-# Activate environment
-source /mnt/data/miniconda3/bin/activate Hackathon  # or venv
-
-# Development mode with auto-reload
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-
-# Access documentation
-# Swagger UI: http://localhost:8000/docs
-# ReDoc: http://localhost:8000/redoc
-```
-
-### Environment Variables
-
-See `.env.example` or create `.env`:
-
-```env
-# Required
-OPENROUTER_API_KEY=sk-or-v1-...
-OPENROUTER_MODEL=openai/gpt-4o
-
-# Database (defaults for local dev)
-DB_USER=postgres
-DB_PASSWORD=postgres
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=hackathon
-
-# API
-AUTH_PASSWORD=QWERTY
-API_PORT=8000
-MAX_FILE_SIZE_MB=5
-```
-
-### Code Quality
-
-```bash
-# Format code
-black app/
-
-# Lint
-pylint app/
-
-# Type checking
-mypy app/
-```
-
-## Testing
-
-### Manual Testing via Swagger UI
-
-1. Open http://localhost:8000/docs
-2. Click "Authorize" and enter `QWERTY`
-3. Test endpoints interactively
-
-### API Testing with cURL
-
-```bash
-# Health check
-curl http://localhost:8000/api/v1/health
-
-# Upload resume
-curl -X POST http://localhost:8000/api/v1/resumes/upload \
-  -H "Authorization: Bearer QWERTY" \
-  -F "file=@sample_resume.pdf"
-
-# Get resume (replace {id})
-curl http://localhost:8000/api/v1/resumes/{id} \
-  -H "Authorization: Bearer QWERTY"
-```
-
-### Automated Tests
-
-```bash
-# Run test suite (when implemented)
-pytest tests/ -v
-
-# Coverage report
-pytest --cov=app tests/
-```
-
-## Deployment
-
-### Using Docker
-
-```bash
-# Build image
-docker build -t resume-parser .
-
-# Run with docker-compose
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-```
-
-### Production Considerations
-
-- Use proper secrets management (AWS Secrets Manager, HashiCorp Vault)
-- Implement rate limiting (Redis + slowapi)
-- Add monitoring (Prometheus, Grafana)
-- Set up logging aggregation (ELK stack)
-- Use production WSGI server (Gunicorn + Uvicorn workers)
-- Enable HTTPS with proper certificates
-- Implement proper JWT authentication
-- Add caching layer (Redis)
-
-## Documentation
-
-- **README.md** - This file (quick start guide)
-- **PROJECT_SUMMARY.md** - Complete feature documentation
-- **REQUIREMENTS_CHECKLIST.md** - Hackathon requirements compliance
-- **Swagger UI** - Interactive API docs at /docs
-- **ReDoc** - Alternative API docs at /redoc
-
-## Troubleshooting
-
-### Common Issues
-
-**Database connection error:**
-```bash
-# Check PostgreSQL is running
-sudo systemctl status postgresql
-
-# Verify database exists
-psql -U postgres -l | grep hackathon
-```
-
-**Import errors:**
-```bash
-# Ensure virtual environment is activated
-source venv/bin/activate
-
-# Reinstall dependencies
-pip install -r requirements.txt
-```
-
-**OpenRouter API errors:**
-```bash
-# Check API key is set
-grep OPENROUTER_API_KEY .env
-
-# Test API key
-curl https://openrouter.ai/api/v1/models \
-  -H "Authorization: Bearer $OPENROUTER_API_KEY"
-```
-
-## Contributing
-
-This is a hackathon project. For questions or issues, please contact the development team.
-
-## License
-
-MIT License - See LICENSE file for details
+- Resume parsing: ~2-5 seconds per document
+- Job matching: ~1-3 seconds per match
+- Bias detection: ~0.5-1 second per resume
+- Candidate ranking: ~0.1 seconds per candidate
 
 ---
 
-**Project Status**: Production Ready for Hackathon
-**Version**: 2.1.0
-**Last Updated**: 2025-11-04
+## Security
+
+### Best Practices
+
+1. **Change Default Password**: Update `AUTH_PASSWORD` in production
+2. **Secure Database**: Use strong passwords and limit access
+3. **HTTPS**: Use reverse proxy (nginx) with SSL/TLS
+4. **Rate Limiting**: Configure appropriate limits
+
+---
+
+## Support
+
+For issues or questions:
+
+- Open an issue on GitHub
+- Check documentation files
+- Review test cases for usage examples
+
+---
+
+## Changelog
+
+### Version 2.2.0 (2025-11-04)
+
+- Added bias detection system
+- Implemented resume anonymization
+- Added competitive analysis
+- Implemented candidate ranking system
+- Enhanced candidate comparison
+- Docker deployment support
+- Comprehensive test suite
+
+---
+
+**Built with FastAPI, PostgreSQL, and AI**
