@@ -1,54 +1,27 @@
-# Web Framework
-fastapi>=0.104.0
-uvicorn>=0.24.0
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
 python-multipart>=0.0.6
-
-# Core LangChain dependencies
-langchain-core>=0.1.0
-langchain-openai>=0.0.5
-langchain-community>=0.0.10
-langchain>=0.1.0
-langchain-huggingface>=0.0.3
-
-# Database and ORM
-sqlalchemy>=2.0.0
-alembic>=1.12.0
-psycopg2-binary>=2.9.0
-
-# Machine Learning and Embeddings
-torch>=2.0.0
-sentence-transformers>=2.2.0
-transformers>=4.30.0
-
-# Vector stores
-faiss-cpu>=1.7.4
-chromadb>=0.4.0
-
-# Document processing
-pypdf>=3.15.0
-pdf2image>=3.1.0
-pytesseract>=0.3.10
-Pillow>=10.0.0
-
-# Environment and configuration
-python-dotenv>=1.0.0
-
-# Text processing
-tiktoken>=0.5.0
-
-# Data manipulation
-pandas>=2.0.0
-
-# Web Interface
-streamlit>=1.28.0
+pydantic>=2.9.0
+pydantic-settings>=2.6.0
+sqlalchemy>=2.0.36
+psycopg2-binary>=2.9.10
+torch>=2.5.0
+flair>=0.14.0
+sentence-transformers>=3.0.0
+transformers>=4.46.0
+faiss-cpu>=1.9.0
+PyPDF2>=3.0.0
+python-docx>=1.1.0
+pypdf>=5.0.0
+pytesseract>=0.3.13
+Pillow>=11.0.0
+pdf2image>=1.16.0
+opencv-python>=4.8.0
+python-magic>=0.4.27
 requests>=2.31.0
-
-# Additional dependencies for Hugging Face
-huggingface-hub>=0.16.0
-tokenizers>=0.13.0
-
-# Development and utilities
-pathlib2>=2.3.7
-typing-extensions>=4.8.0 
-
-
+python-dotenv>=1.0.1
+tiktoken>=0.8.0
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-asyncio>=0.21.0
+httpx>=0.24.1
