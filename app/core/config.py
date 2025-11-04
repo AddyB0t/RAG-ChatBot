@@ -3,8 +3,8 @@ from pydantic_settings import BaseSettings
 from typing import Optional
 
 class Settings(BaseSettings):
-    OPENROUTER_API_KEY: str
-    OPENROUTER_MODEL: str = "openai/gpt-4o"
+    OPENAI_API_KEY: str
+    OPENAI_MODEL: str = "gpt-4o"
 
     AUTH_PASSWORD: str = "QWERTY"
 

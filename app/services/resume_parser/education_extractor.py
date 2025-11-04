@@ -2,7 +2,7 @@ import json
 import re
 from typing import List, Dict, Any
 from .base_extractor import BaseExtractor
-from app.utils.openrouter_client import OpenRouterClient
+from app.utils.openai_client import OpenAIClient
 import logging
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ class EducationExtractor(BaseExtractor):
     GPA_PATTERN = re.compile(r'(?:GPA|CGPA|Grade)[\s:]*(\d+\.?\d*)\s*(?:/\s*(\d+\.?\d*))?')
 
     def __init__(self):
-        self.llm = OpenRouterClient()
+        self.llm = OpenAIClient()
 
     def extract(self, text: str) -> List[Dict[str, Any]]:
         try:

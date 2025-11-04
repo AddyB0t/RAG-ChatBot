@@ -100,7 +100,7 @@ pytest tests/test_quality_analysis.py -v
 
 ### What's NOT Tested (Requires AI/External Services)
 ⚠️ Actual file upload processing (mocked)
-⚠️ AI extraction quality (requires OpenRouter API)
+⚠️ AI extraction quality (requires OpenAI API)
 ⚠️ Job matching algorithm accuracy (requires AI)
 ⚠️ Quality analysis scoring (requires AI)
 

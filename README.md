@@ -142,7 +142,28 @@ Access the application:
 
 ### Quick Start with Docker
 
-**Two simple commands to run the entire application:**
+**Step 1: Configure API Key**
+
+Before running Docker, you need to set up your OpenAI API key:
+
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit .env and add your OpenAI API key
+nano .env
+```
+
+Update this line in `.env`:
+```
+OPENROUTER_API_KEY=your-actual-api-key-here
+```
+
+Get your API key from: https://platform.openai.com/api-keys
+
+**Step 2: Run the Application**
+
+Two simple commands to run the entire application:
 
 ```bash
 # Build the application
@@ -299,7 +320,7 @@ POST /api/v1/advanced/candidate-comparison?candidate1_id=xxx&candidate2_id=yyy
 ├─────────────────────────────────────────────┤
 │  API Routes  │  Services   │  ML Models     │
 │  - Resumes   │  - Parser   │  - Flair NER   │
-│  - Matching  │  - Matcher  │  - OpenRouter  │
+│  - Matching  │  - Matcher  │  - OpenAI  │
 │  - Quality   │  - Quality  │                │
 │  - Advanced  │  - Bias     │                │
 │              │  - Ranker   │                │
@@ -327,7 +348,7 @@ POST /api/v1/advanced/candidate-comparison?candidate1_id=xxx&candidate2_id=yyy
 **ML/AI:**
 
 - Flair 0.13.1 (NER)
-- OpenRouter API (LLM)
+- OpenAI API (LLM)
 - Torch 2.1.1
 
 **Document Processing:**
@@ -367,7 +388,7 @@ RAG-ChatBot/
 
 **Required:**
 
-- `OPENROUTER_API_KEY` - OpenRouter API key for LLM access
+- `OPENROUTER_API_KEY` - OpenAI API key for LLM access
 
 **Database:**
 
@@ -413,10 +434,19 @@ pytest tests/ --cov=app --cov-report=html
 
 ### Best Practices
 
-1. **Change Default Password**: Update `AUTH_PASSWORD` in production
-2. **Secure Database**: Use strong passwords and limit access
-3. **HTTPS**: Use reverse proxy (nginx) with SSL/TLS
-4. **Rate Limiting**: Configure appropriate limits
+1. **Protect API Keys**:
+   - Never commit `.env` files to version control
+   - Never hardcode API keys in `docker-compose.yml` or source code
+   - Use environment variables for all sensitive credentials
+   - Regenerate API keys immediately if accidentally exposed
+
+2. **Change Default Password**: Update `AUTH_PASSWORD` in production
+
+3. **Secure Database**: Use strong passwords and limit access
+
+4. **HTTPS**: Use reverse proxy (nginx) with SSL/TLS
+
+5. **Rate Limiting**: Configure appropriate limits
 
 ---
 

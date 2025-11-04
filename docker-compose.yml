@@ -30,33 +30,34 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: hackathon
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      OPENROUTER_API_KEY: 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
-      OPENROUTER_MODEL: openai/gpt-4o
-      OPENROUTER_BASE_URL: https://openrouter.ai/api/v1
-      API_HOST: 0.0.0.0
-      API_PORT: 8000
-      API_RELOAD: False
-      API_WORKERS: 4
-      AUTH_PASSWORD: QWERTY
-      MAX_FILE_SIZE_MB: 10
-      ALLOWED_EXTENSIONS: pdf,docx,doc,txt
-      UPLOAD_DIR: /app/uploads
-      LOG_LEVEL: INFO
-      LOG_FILE: /app/logs/app.log
-      TESSERACT_CMD: /usr/bin/tesseract
-      FLAIR_MODEL_NAME: flair/ner-english-large
-      FLAIR_CACHE_DIR: /app/models/flair_cache
-      EMBEDDING_MODEL: sentence-transformers/all-MiniLM-L6-v2
-      EMBEDDING_DEVICE: auto
-      RATE_LIMIT_PER_MINUTE: 100
-      CHUNK_SIZE: 500
-      CHUNK_OVERLAP: 200
+    env_file:
+      - .env.docker   
+    # environment:
+    #   DB_HOST: postgres
+    #   DB_PORT: 5432
+    #   DB_NAME: hackathon
+    #   DB_USER: postgres
+    #   DB_PASSWORD: postgres
+    #   OPENAI_API_KEY: ${OPENAI_API_KEY}
+    #   OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o}
+    #   API_HOST: 0.0.0.0
+    #   API_PORT: 8000
+    #   API_RELOAD: False
+    #   API_WORKERS: 4
+    #   AUTH_PASSWORD: ${AUTH_PASSWORD:-QWERTY}
+    #   MAX_FILE_SIZE_MB: 10
+    #   ALLOWED_EXTENSIONS: pdf,docx,doc,txt
+    #   UPLOAD_DIR: /app/uploads
+    #   LOG_LEVEL: INFO
+    #   LOG_FILE: /app/logs/app.log
+    #   TESSERACT_CMD: /usr/bin/tesseract
+    #   FLAIR_MODEL_NAME: flair/ner-english-large
+    #   FLAIR_CACHE_DIR: /app/models/flair_cache
+    #   EMBEDDING_MODEL: sentence-transformers/all-MiniLM-L6-v2
+    #   EMBEDDING_DEVICE: auto
+    #   RATE_LIMIT_PER_MINUTE: 100
+    #   CHUNK_SIZE: 500
+    #   CHUNK_OVERLAP: 200
     volumes:
       - ./uploads:/app/uploads
       - ./logs:/app/logs

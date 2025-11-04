@@ -1,6 +1,6 @@
 from typing import Dict, Any
 import json
-from app.utils.openrouter_client import OpenRouterClient
+from app.utils.openai_client import OpenAIClient
 import logging
 import re
 
@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 class MatchScorer:
     def __init__(self):
-        self.llm = OpenRouterClient()
+        self.llm = OpenAIClient()
 
     def calculate_overall_score(
         self,
