@@ -1,14 +1,14 @@
 import json
 import re
 from typing import Dict, List, Any
-from app.utils.openrouter_client import OpenRouterClient
+from app.utils.openai_client import OpenAIClient
 import logging
 
 logger = logging.getLogger(__name__)
 
 class JobDescriptionParser:
     def __init__(self):
-        self.llm = OpenRouterClient()
+        self.llm = OpenAIClient()
 
     def parse_job_description(self, job_description: str, job_title: str) -> Dict[str, Any]:
         try:

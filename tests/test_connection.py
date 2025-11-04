@@ -9,7 +9,7 @@ try:
     print(f"  Database: {settings.DB_NAME}")
     print(f"  Host: {settings.DB_HOST}:{settings.DB_PORT}")
     print(f"  Max file size: {settings.MAX_FILE_SIZE_MB}MB")
-    print(f"  OpenRouter Model: {settings.OPENROUTER_MODEL}")
+    print(f"  OpenRouter Model: {settings.OPENAI_MODEL}")
 except Exception as e:
     print(f"✗ Configuration error: {e}")
     sys.exit(1)

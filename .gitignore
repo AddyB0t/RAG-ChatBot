@@ -19,5 +19,5 @@ build/
 *.egg-info/
 
 # Local development settings
-.env
-.env.local 
+# .env
+# .env.local 

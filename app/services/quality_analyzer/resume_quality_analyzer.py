@@ -1,7 +1,7 @@
 import json
 import re
 from typing import Dict, Any
-from app.utils.openrouter_client import OpenRouterClient
+from app.utils.openai_client import OpenAIClient
 import logging
 
 logger = logging.getLogger(__name__)
@@ -10,7 +10,7 @@ class ResumeQualityAnalyzer:
     """Analyzes resume quality and provides improvement suggestions"""
 
     def __init__(self):
-        self.llm = OpenRouterClient()
+        self.llm = OpenAIClient()
 
     def analyze_quality(self, resume_data: Dict[str, Any]) -> Dict[str, Any]:
         """

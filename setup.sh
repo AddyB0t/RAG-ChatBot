@@ -138,13 +138,13 @@ if [ ! -f ".env" ]; then
     if [ -f ".env.example" ]; then
         cp .env.example .env
         print_warning "Created .env from .env.example"
-        print_warning "IMPORTANT: Edit .env and add your OPENROUTER_API_KEY!"
+        print_warning "IMPORTANT: Edit .env and add your OPENAI_API_KEY!"
     else
         print_warning "Creating default .env file..."
         cat > .env << EOF
 # OpenRouter AI Configuration
-OPENROUTER_API_KEY=your-api-key-here
-OPENROUTER_MODEL=openai/gpt-4o
+OPENAI_API_KEY=your-api-key-here
+OPENAI_MODEL=openai/gpt-4o
 
 # Database Configuration
 DB_USER=postgres
@@ -168,7 +168,7 @@ UPLOAD_DIR=uploads
 LOG_LEVEL=INFO
 EOF
         print_warning "Created default .env file"
-        print_warning "IMPORTANT: Edit .env and add your OPENROUTER_API_KEY!"
+        print_warning "IMPORTANT: Edit .env and add your OPENAI_API_KEY!"
     fi
 else
     print_success ".env file already exists"
@@ -263,7 +263,7 @@ echo ""
 print_success "Project setup completed successfully!"
 echo ""
 echo "Next steps:"
-echo "1. Edit .env file and add your OPENROUTER_API_KEY"
+echo "1. Edit .env file and add your OPENAI_API_KEY"
 echo "2. Start the server with one of these commands:"
 echo ""
 if [ -d "/mnt/data/miniconda3" ]; then
